@@ -160,7 +160,7 @@ ${REF_PATH}/bin/pear -f ${NGS}_trimmed -r ${NGS_R2}_trimmed -o $NGS -q 20 -t 50
 mv ${NGS}.assembled.fastq ${NGS}_trimmed
 rm ${NGS_R2}_trimmed
 
-step3£º
+step3Â£Âº
 echo "Step 3: sequence filtering"
 if [ "$FORMAT" eq "fasta" ]
 then
@@ -180,7 +180,7 @@ fi
 
 if [ "$MODE" eq "fast" ]
 then
-      bwa mem -t ${THREAD} ${REF_PATH}/db/155pathogens.fa ${NGS}_trimmed_filter > ${NGS}.sam
+      bwa mem -t 8 ${REF_PATH}/db/155pathogens.fa ${NGS}_trimmed_filter > ${NGS}.sam
       perl ${REF_PATH}/bin/pathogenSamMatch.pl $NGS.sam ${NGS}.pathon.match.txt
       cat ${NGS}.pathon.match.txt >> ${NGS}.basic_stat.txt
       rm ${NGS}.pathon.match.txt
