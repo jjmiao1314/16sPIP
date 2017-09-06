@@ -189,7 +189,7 @@ then
       perl ${REF_PATH}/bin/FastReport.pl -l $NGS.pathogen.list -s ${NGS}.basic_stat.txt -o ${NGS}.pathogen.prediction.report
 elif [ "$MODE" = "sensitive" ]
 then
-      bwa mem -t ${THREAD} ${REF_PATH}/db/16S-complete.fa ${NGS}_trimmed_filter > $NGS.com.sam &
+      bwa mem -t 8 ${REF_PATH}/db/16S-complete.fa ${NGS}_trimmed_filter > $NGS.com.sam &
       echo $! >Job_id
       bwa mem -t ${THREAD} ${REF_PATH}/db/155pathogens.fa ${NGS}_trimmed_filter > $NGS.sam
       perl ${REF_PATH}/bin/SamSingleResult.pl -i $NGS.sam -l species -s 99 -o $NGS.pathogen
