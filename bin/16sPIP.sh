@@ -9,7 +9,6 @@
 ### Authors : Jiaojiao Miao <jjmiao1314@163.com>
 #
 
-16sPIP_version="0.1.1"
 
 if [ $# -lt 1 ]
 then
@@ -21,6 +20,9 @@ FORMAT="fastq"
 REF_PATH="/usr/bin/16sPIP"
 MODE="fast"
 THREAD=1
+Version="0.1.1"
+step="step1"
+THREAD=8
 
 while getopts ":i:r:f:s:p:m:t:hv" opt
 do
@@ -56,7 +58,7 @@ if [ $HELP -eq 1 ]
 then
 	cat <<USAGE
 
-16sPIP version ${16sPIP_version}
+16sPIP version ${Version}
 
 This program will run the 16sPIP pipeline with the supplied parameters.
 
@@ -111,7 +113,7 @@ then
 	exit 
 fi
 
-if [ "$MODE" != "fast" -o "$MODE" != "sensitive" ]
+if [ "$MODE"x != "fast"x -a "$MODE"x != "sensitive"x ]
 then
         echo "Specify the analysis mode: fast or sensitive [fast]"
 	exit
@@ -127,7 +129,10 @@ then
       mv ${NGS}.fastq $NGS
 fi
 
-if  ($step != "")  goto $step
+if [ "$step" != "" ] 
+then 
+  goto ${step}
+fi
 
 step1:
 echo "Step 1: Quality control "
@@ -135,7 +140,7 @@ if [ "${FORMAT}" = "fastq" -o "${FORMAT}" = "sam" -o "${FORMAT}" = "bam" -o "${F
 then
     if [ ${NGS_R2} -a -f ${NGS_R2} ]
     then
-             perl ${REF_PATH}/bin/TrimmingReads.pl -i $NGS -irev $NGS_R2 -q 20 -n 50 
+             perl ${REF_PATH}/bin/TrimmingReads.pl -i ${NGS} -irev ${NGS_R2} -q 20 -n 50
     else
              perl ${REF_PATH}/bin/TrimmingReads.pl -i $NGS -q 20 -n 50
     fi
@@ -160,9 +165,9 @@ ${REF_PATH}/bin/pear -f ${NGS}_trimmed -r ${NGS_R2}_trimmed -o $NGS -q 20 -t 50
 mv ${NGS}.assembled.fastq ${NGS}_trimmed
 rm ${NGS_R2}_trimmed
 
-step3£º
+step3:
 echo "Step 3: sequence filtering"
-if [ "$FORMAT" eq "fasta" ]
+if [ "$FORMAT" = "fasta" ]
 then
        perl $REF_PATH/bin/FilterReads.pl ${NGS}_trimmed fasta 10
 else
@@ -171,16 +176,16 @@ fi
 
 step4:
 echo "Step 4: Results report"
-if [ "$FORMAT" eq "fasta" ]
+if [ "$FORMAT" = "fasta" ]
 then
        python $REF_PATH/bin/basicStatistics.py ${NGS}_trimmed_filter fasta ${NGS}.basic_stat.txt
 else
        python $REF_PATH/bin/basicStatistics.py ${NGS}_trimmed_filter fastq ${NGS}.basic_stat.txt
 fi
 
-if [ "$MODE" eq "fast" ]
+if [ "$MODE" = "fast" ]
 then
-      bwa mem -t 8 ${REF_PATH}/db/155pathogens.fa ${NGS}_trimmed_filter > ${NGS}.sam
+      bwa mem -t ${THREAD} ${REF_PATH}/db/155pathogens.fa ${NGS}_trimmed_filter > ${NGS}.sam
       perl ${REF_PATH}/bin/pathogenSamMatch.pl $NGS.sam ${NGS}.pathon.match.txt
       cat ${NGS}.pathon.match.txt >> ${NGS}.basic_stat.txt
       rm ${NGS}.pathon.match.txt
@@ -189,7 +194,7 @@ then
       perl ${REF_PATH}/bin/FastReport.pl -l $NGS.pathogen.list -s ${NGS}.basic_stat.txt -o ${NGS}.pathogen.prediction.report
 elif [ "$MODE" = "sensitive" ]
 then
-      bwa mem -t 8 ${REF_PATH}/db/16S-complete.fa ${NGS}_trimmed_filter > $NGS.com.sam &
+      bwa mem -t ${THREAD} ${REF_PATH}/db/16S-complete.fa ${NGS}_trimmed_filter > $NGS.com.sam &
       echo $! >Job_id
       bwa mem -t ${THREAD} ${REF_PATH}/db/155pathogens.fa ${NGS}_trimmed_filter > $NGS.sam
       perl ${REF_PATH}/bin/SamSingleResult.pl -i $NGS.sam -l species -s 99 -o $NGS.pathogen
@@ -238,7 +243,3 @@ fi
 
 enscript -p ${NGS}.pathogen.prediction.report.ps ${NGS}.pathogen.prediction.report
 ps2pdf ${NGS}.pathogen.prediction.report.ps ${NGS}.pathogen.prediction.report.pdf
-
-
-
-
