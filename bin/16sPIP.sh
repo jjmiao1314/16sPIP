@@ -207,7 +207,7 @@ then
       fi
       for i in `ls ${NGS}.*.pathon.fa`
       do
-       perl ${REF_PATH}/bin/blastn -query $i -out $i.blast -db ${REF_PATH}/db/16S-complete -outfmt 6 -evalue 1E-20 -num_threads ${THREAD} &
+       ${REF_PATH}/bin/blastn -query $i -out $i.blast -db ${REF_PATH}/db/16S-complete -outfmt 6 -evalue 1E-20 -num_threads ${THREAD} &
        echo $! >>Job_id
       done
       perl ${REF_PATH}/bin/pathogenSamMatch.pl $NGS.sam ${NGS}.pathon.match.txt
