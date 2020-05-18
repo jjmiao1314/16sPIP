@@ -238,7 +238,7 @@ then
     cat ${NGS}.*.pathon.fa.blast >$NGS.tmp.blast
     rm ${NGS}.*.pathon.fa*
     perl ${REF_PATH}/bin/completeAnnotation.pl $NGS.tmp.blast ${REF_PATH}/db/16S-complete.list species $NGS.tmp.blast.list.species
-    perl ${REF_PATH}/bin/sensitiveReport.pl -l $NGS.pathogen.list -t basic_stat.txt -g $NGS.com.sam.genus.list -f $NGS.com.sam.family.list -b $NGS.tmp.blast.list.species -s $NGS.com.sam.species.list -o ${NGS}.pathogen.prediction.report
+    perl ${REF_PATH}/bin/sensitiveReport.pl -l $NGS.pathogen.list -t ${NGS}.basic_stat.txt -g $NGS.com.sam.genus.list -f $NGS.com.sam.family.list -b $NGS.tmp.blast.list.species -s $NGS.com.sam.species.list -o ${NGS}.pathogen.prediction.report
 fi
 
 enscript -p ${NGS}.pathogen.prediction.report.ps ${NGS}.pathogen.prediction.report
